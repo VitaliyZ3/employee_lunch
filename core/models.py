@@ -32,6 +32,7 @@ class Restaurant(models.Model):
         blank=True,
         null=True,
         verbose_name="Restaurant menu",
+        on_delete=models.DO_NOTHING
     )
 
 
