@@ -46,6 +46,7 @@ class TodayMenuRestaurantListView(generics.ListAPIView):
     """
     Handler for getting restaurant menu for today
     """
+
     serializer_class = RestaurantRetrieveSerializer
 
     def get_queryset(self):
@@ -65,16 +66,20 @@ class RestaurantVotesListView(generics.ListAPIView):
     """
     Handler for getting list of restaurants, their menus and votes
     """
+
     serializer_class = RestaurantRetrieveSerializer
 
     def get_queryset(self):
-        return Restaurant.objects.annotate(votes_count=F("menu__menuvotes__votes_number"))
+        return Restaurant.objects.annotate(
+            votes_count=F("menu__menuvotes__votes_number")
+        )
 
 
 class AddVoteView(generics.CreateAPIView):
     """
     Handler for adding votes to the menu
     """
+
     serializer_class = MenuVotesSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -109,6 +114,7 @@ class CreateUserView(generics.CreateAPIView):
     """
     Handler for creating user/employee
     """
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -124,8 +130,8 @@ class GetMajorityVotedRestaurantView(generics.ListAPIView):
     """
     Handler for getting total best votes menu
     """
-    serializer_class = MenuCreateSerializer
 
+    serializer_class = MenuCreateSerializer
 
     def get_queryset(self):
         today = timezone.now().date()

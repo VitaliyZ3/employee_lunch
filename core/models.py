@@ -6,6 +6,7 @@ class FoodKitchen(models.Model):
     """
     Model that represent Categories of restaurant
     """
+
     name = models.CharField(max_length=20, verbose_name="Kitchen name")
     description = models.TextField("About cooking type")
 
@@ -14,6 +15,7 @@ class Dish(models.Model):
     """
     Model that represent dishes
     """
+
     name = models.CharField(max_length=20, verbose_name="Dish name")
     description = models.TextField("About dish")
 
@@ -22,6 +24,7 @@ class Menu(models.Model):
     """
     Model that represent restaurant one day menu
     """
+
     dishes = models.ManyToManyField(
         Dish, related_name="menu", blank=True, verbose_name="Menu dishes"
     )
@@ -34,6 +37,7 @@ class Restaurant(models.Model):
     """
     Model that represent restaurant
     """
+
     name = models.CharField(max_length=20, verbose_name="Restaurant name")
     location = models.CharField(max_length=254, verbose_name="Restaurant address")
     food_type = models.ForeignKey(
@@ -56,6 +60,7 @@ class MenuVotes(models.Model):
     """
     Model that represent total menu votes
     """
+
     menu = models.ForeignKey(
         Menu,
         blank=False,
@@ -80,6 +85,7 @@ class EmployeeVotes(models.Model):
     """
     Many-to-Many model for ranking menus
     """
+
     menu_vote = models.ForeignKey(
         MenuVotes, on_delete=models.CASCADE, related_name="employeevotes"
     )

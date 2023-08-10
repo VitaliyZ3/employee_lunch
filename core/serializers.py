@@ -18,7 +18,6 @@ class DishSerializer(serializers.ModelSerializer):
 
 
 class MenuCreateSerializer(serializers.ModelSerializer):
-
     dishes = DishSerializer(many=True, write_only=False)
     restaurant = serializers.PrimaryKeyRelatedField(
         queryset=Restaurant.objects.all(), write_only=True
@@ -57,7 +56,6 @@ class MenuCreateSerializer(serializers.ModelSerializer):
 
 
 class RestaurantRetrieveSerializer(serializers.ModelSerializer):
-
     menu = MenuCreateSerializer()
     votes_count = serializers.IntegerField()
 

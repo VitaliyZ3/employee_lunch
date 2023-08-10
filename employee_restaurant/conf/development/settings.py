@@ -84,8 +84,8 @@ DATABASES = {
         "PASSWORD": DB_PASSWORD,
         "HOST": DB_HOST,
         "PORT": DB_PORT,
-        'TEST': {
-            'NAME': 'mytestdatabase',
+        "TEST": {
+            "NAME": "mytestdatabase",
         },
     },
 }

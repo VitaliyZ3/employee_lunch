@@ -21,7 +21,6 @@ urlpatterns = [
         name="restaurant_menu_retrieve",
     ),
     path("food-kitcken/", FoodKitchenCreateView.as_view(), name="food_kitcken_create"),
-
     # Menu
     path("menu/", MenuCreateView.as_view(), name="menu_list_create"),
     path(
@@ -29,10 +28,8 @@ urlpatterns = [
         MenuRetrieveUpdateDestroyView.as_view(),
         name="menu_retrieve_update_destroy",
     ),
-
     # Employee
     path("create-employee/", CreateUserView.as_view(), name="create_employee"),
-
     # Votes
     path("add-vote/", AddVoteView.as_view(), name="add_vote"),
     path(
