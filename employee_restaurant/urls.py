@@ -5,13 +5,14 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 from .yasg import urlpatterns as swagger_urlpatterns
+
 urlpatterns = [
     path("admin/", admin.site.urls),
 ]
 
 # Apps
-urlpatterns +=[
-    path('', include("core.urls"), name='core'),
+urlpatterns += [
+    path("", include("core.urls"), name="core"),
 ]
 
 # 3th party apps

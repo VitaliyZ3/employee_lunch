@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     "core.apps.CoreConfig",
     # 3rd party
     "rest_framework",
-    'drf_yasg',
-    'debug_toolbar',
+    "drf_yasg",
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [

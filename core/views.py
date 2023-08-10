@@ -5,30 +5,23 @@ from django.core.cache import cache
 from django.db.models import Count
 from rest_framework import permissions
 from django.utils import timezone
-from .models import (
-    Restaurant,
-    Menu,
-    MenuVotes,
-    User
-)
+from .models import Restaurant, Menu, MenuVotes, User
 from .serializers import (
     RestaurantCreateSerializer,
     FoodKitchenCreateSerializer,
     MenuCreateSerializer,
     RestaurantRetrieveSerializer,
     MenuVotesSerializer,
-    UserSerializer
+    UserSerializer,
 )
 
 
 class RestaurantCreateView(generics.CreateAPIView):
-
     serializer_class = RestaurantCreateSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
 
 class FoodKitchenCreateView(generics.CreateAPIView):
-
     serializer_class = FoodKitchenCreateSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
@@ -64,12 +57,11 @@ class TodayMenuRestaurantListView(generics.ListAPIView):
         return queryset
 
 
-
 class RestaurantVotesListView(generics.ListAPIView):
     serializer_class = RestaurantRetrieveSerializer
 
     def get_queryset(self):
-        return Restaurant.objects.annotate(votes_count=Count('menu__menuvotes'))
+        return Restaurant.objects.annotate(votes_count=Count("menu__menuvotes"))
 
 
 class AddVoteView(generics.CreateAPIView):
@@ -99,6 +91,7 @@ class AddVoteView(generics.CreateAPIView):
             return Response(
                 {"detail": "Vote already submitted"}, status=status.HTTP_400_BAD_REQUEST
             )
+
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
