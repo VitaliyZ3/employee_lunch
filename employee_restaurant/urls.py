@@ -19,6 +19,7 @@ urlpatterns += [
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api-auth/", include("rest_framework.urls")),
+    path("__debug__/", include("debug_toolbar.urls")),
 ]
 
 urlpatterns += swagger_urlpatterns

@@ -1,5 +1,6 @@
 from datetime import date
 from rest_framework import generics
+from django.core.cache import cache
 from rest_framework import permissions
 from .models import (
     Restaurant,
@@ -45,5 +46,13 @@ class TodayMenuRestaurantListView(generics.ListAPIView):
     serializer_class = RestaurantRetrieveSerializer
 
     def get_queryset(self):
+        cached_data = cache.get("todays_menu_restaurants")
+
+        if cached_data:
+            return cached_data
         today = date.today()
-        return Restaurant.objects.filter(menu__uploaded_date__date=today)
+        queryset = Restaurant.objects.filter(menu__uploaded_date__date=today)
+
+        cache.set("todays_menu_restaurants", queryset, 3600)
+
+        return queryset
