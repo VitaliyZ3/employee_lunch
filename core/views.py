@@ -2,7 +2,7 @@ from datetime import date
 from rest_framework import generics, status
 from rest_framework.response import Response
 from django.core.cache import cache
-from django.db.models import Count
+from django.db.models import F, Count
 from rest_framework import permissions
 from django.utils import timezone
 from .models import Restaurant, Menu, MenuVotes, User
@@ -42,6 +42,9 @@ class RestaurantRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView)
 
 
 class TodayMenuRestaurantListView(generics.ListAPIView):
+    """
+    Handler for getting restaurant menu for today
+    """
     serializer_class = RestaurantRetrieveSerializer
 
     def get_queryset(self):
@@ -58,13 +61,19 @@ class TodayMenuRestaurantListView(generics.ListAPIView):
 
 
 class RestaurantVotesListView(generics.ListAPIView):
+    """
+    Handler for getting list of restaurants, their menus and votes
+    """
     serializer_class = RestaurantRetrieveSerializer
 
     def get_queryset(self):
-        return Restaurant.objects.annotate(votes_count=Count("menu__menuvotes"))
+        return Restaurant.objects.annotate(votes_count=F("menu__menuvotes__votes_number"))
 
 
 class AddVoteView(generics.CreateAPIView):
+    """
+    Handler for adding votes to the menu
+    """
     serializer_class = MenuVotesSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -80,6 +89,8 @@ class AddVoteView(generics.CreateAPIView):
             )
 
         menu_vote, created = MenuVotes.objects.get_or_create(menu=menu)
+
+        # checking if user previously add vote to the menu
         if employee not in menu_vote.employees.all():
             menu_vote.employees.add(employee)
             menu_vote.votes_number = menu_vote.employees.count()
@@ -94,6 +105,9 @@ class AddVoteView(generics.CreateAPIView):
 
 
 class CreateUserView(generics.CreateAPIView):
+    """
+    Handler for creating user/employee
+    """
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -106,6 +120,9 @@ class CreateUserView(generics.CreateAPIView):
 
 
 class GetMajorityVotedRestaurantView(generics.ListAPIView):
+    """
+    Handler for getting total best votes menu
+    """
     serializer_class = MenuCreateSerializer
 
     def get_queryset(self):
@@ -115,6 +132,7 @@ class GetMajorityVotedRestaurantView(generics.ListAPIView):
         )
         end_of_day = start_of_day + timezone.timedelta(days=1)
 
+        # Get best object MenuVotes which is the most rated menu
         majority_restaurant_votes = (
             MenuVotes.objects.filter(
                 voting_date__gte=start_of_day, voting_date__lt=end_of_day

@@ -18,6 +18,7 @@ class DishSerializer(serializers.ModelSerializer):
 
 
 class MenuCreateSerializer(serializers.ModelSerializer):
+
     dishes = DishSerializer(many=True, write_only=False)
     restaurant = serializers.PrimaryKeyRelatedField(
         queryset=Restaurant.objects.all(), write_only=True
@@ -28,6 +29,9 @@ class MenuCreateSerializer(serializers.ModelSerializer):
         fields = ("restaurant", "dishes", "uploaded_date")
 
     def create(self, validated_data):
+        """
+        Func for creating menu or updating existing
+        """
         dishes_data = validated_data.pop("dishes")
         restaurant = validated_data.pop("restaurant")
         today = date.today()
@@ -53,7 +57,9 @@ class MenuCreateSerializer(serializers.ModelSerializer):
 
 
 class RestaurantRetrieveSerializer(serializers.ModelSerializer):
+
     menu = MenuCreateSerializer()
+    votes_count = serializers.IntegerField()
 
     class Meta:
         model = Restaurant
