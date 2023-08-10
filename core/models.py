@@ -35,6 +35,9 @@ class Restaurant(models.Model):
         on_delete=models.DO_NOTHING
     )
 
+    def __str__(self):
+        return self.name
+
 
 class MenuVotes(models.Model):
     menu = models.ForeignKey(
