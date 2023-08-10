@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class FoodKitchen(models.Model):
@@ -32,7 +33,7 @@ class Restaurant(models.Model):
         blank=True,
         null=True,
         verbose_name="Restaurant menu",
-        on_delete=models.DO_NOTHING
+        on_delete=models.DO_NOTHING,
     )
 
     def __str__(self):
@@ -51,3 +52,19 @@ class MenuVotes(models.Model):
         blank=True, null=True, verbose_name="Employee voting count"
     )
     voting_date = models.DateTimeField(auto_now=True, verbose_name="Voting date")
+    employees = models.ManyToManyField(
+        User,
+        related_name="menu_votes",
+        through="EmployeeVotes",
+        blank=True,
+        verbose_name="employee who votes",
+    )
+
+
+class EmployeeVotes(models.Model):
+    menu_vote = models.ForeignKey(
+        MenuVotes, on_delete=models.CASCADE, related_name="employeevotes"
+    )
+    employee = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="employeevotes"
+    )

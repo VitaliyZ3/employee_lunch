@@ -1,17 +1,23 @@
 from datetime import date
-from rest_framework import generics
+from rest_framework import generics, status
+from rest_framework.response import Response
 from django.core.cache import cache
+from django.db.models import Count
 from rest_framework import permissions
+from django.utils import timezone
 from .models import (
     Restaurant,
-    FoodKitchen,
-    Menu
+    Menu,
+    MenuVotes,
+    User
 )
 from .serializers import (
     RestaurantCreateSerializer,
     FoodKitchenCreateSerializer,
     MenuCreateSerializer,
-    RestaurantRetrieveSerializer
+    RestaurantRetrieveSerializer,
+    MenuVotesSerializer,
+    UserSerializer
 )
 
 
@@ -56,3 +62,83 @@ class TodayMenuRestaurantListView(generics.ListAPIView):
         cache.set("todays_menu_restaurants", queryset, 3600)
 
         return queryset
+
+
+
+class RestaurantVotesListView(generics.ListAPIView):
+    serializer_class = RestaurantRetrieveSerializer
+
+    def get_queryset(self):
+        return Restaurant.objects.annotate(votes_count=Count('menu__menuvotes'))
+
+
+class AddVoteView(generics.CreateAPIView):
+    serializer_class = MenuVotesSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        menu_id = request.data.get("menu_id")
+        employee = request.user
+
+        try:
+            menu = Menu.objects.get(id=menu_id)
+        except Menu.DoesNotExist:
+            return Response(
+                {"detail": "Menu not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        menu_vote, created = MenuVotes.objects.get_or_create(menu=menu)
+        if employee not in menu_vote.employees.all():
+            menu_vote.employees.add(employee)
+            menu_vote.votes_number = menu_vote.employees.count()
+            menu_vote.save(update_fields=["votes_number"])
+            return Response(
+                {"detail": "Vote added successfully"}, status=status.HTTP_201_CREATED
+            )
+        else:
+            return Response(
+                {"detail": "Vote already submitted"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+class CreateUserView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class GetMajorityVotedRestaurantView(generics.ListAPIView):
+    serializer_class = MenuCreateSerializer
+
+    def get_queryset(self):
+        today = timezone.now().date()
+        start_of_day = timezone.make_aware(
+            timezone.datetime.combine(today, timezone.datetime.min.time())
+        )
+        end_of_day = start_of_day + timezone.timedelta(days=1)
+
+        majority_restaurant_votes = (
+            MenuVotes.objects.filter(
+                voting_date__gte=start_of_day, voting_date__lt=end_of_day
+            )
+            .values("menu__restaurant")
+            .annotate(votes_count=Count("menu__restaurant"))
+            .order_by("-votes_count")
+            .first()
+        )
+
+        if majority_restaurant_votes:
+            majority_restaurant_id = majority_restaurant_votes["menu__restaurant"]
+
+            majority_restaurant = Menu.objects.get(
+                restaurant=majority_restaurant_id, uploaded_date__date=today
+            )
+
+            return [majority_restaurant]
+
+        return []
