@@ -18,17 +18,18 @@ from .serializers import (
 
 class RestaurantCreateView(generics.CreateAPIView):
     serializer_class = RestaurantCreateSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class FoodKitchenCreateView(generics.CreateAPIView):
     serializer_class = FoodKitchenCreateSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class MenuCreateView(generics.ListCreateAPIView):
     queryset = Menu.objects.all()
     serializer_class = MenuCreateSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class MenuRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
@@ -124,6 +125,7 @@ class GetMajorityVotedRestaurantView(generics.ListAPIView):
     Handler for getting total best votes menu
     """
     serializer_class = MenuCreateSerializer
+
 
     def get_queryset(self):
         today = timezone.now().date()
