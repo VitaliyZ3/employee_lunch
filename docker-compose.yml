@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - '6379:6379'
+
+  pgdb:
+    image: postgres
+    environment:
+      POSTGRES_DB: "employee_lunch"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+      - '5432:5432'
+
+  backend:
+    restart: always
+    build:
+      context: .
+    volumes:
+      - ./media:/media
+    ports:
+      - '80:80'
+    command: ['python3', './manage.py', 'runserver', '0.0.0.0:80']
+
